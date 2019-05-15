@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- ElvUI Professions Datatext By Lockslap
+-- ElvUI Professions Datatext By Lockslap (US, Bleeding Hollow)
 -------------------------------------------------------------------------------
 local E, _, V, P, G = unpack(ElvUI); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local DT = E:GetModule('DataTexts')
