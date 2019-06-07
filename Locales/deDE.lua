@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- ElvUI Professions Datatext By Lockslap (US, Bleeding Hollow)
+-- ElvUI Professions Datatext By Crackpotx (US, Lightbringer)
 -------------------------------------------------------------------------------
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
 local L = AceLocale:NewLocale("ElvUI_Professions", "deDE", false)
