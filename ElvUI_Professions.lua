@@ -28,7 +28,7 @@ end
 
 local function OnEvent(self, event, ...)
 	local prof1, prof2, archy, fishing, cooking = GetProfessions()
-	
+	lastPanel = self
 	if E.db.profdt.prof == "prof1" then
 		
 		if prof1 ~= nil then
@@ -169,7 +169,10 @@ end
 local function ValueColorUpdate(hex, r, g, b)
 	displayString = join("", "|cffffffff%s:|r ", hex, "%d|r/", hex, "%d|r")
 	tooltipString = join("" , hex, "%d|r|cffffffff/|r", hex, "%d|r")
-	if lastPanel ~= nil then OnEvent(lastPanel) end
+	
+	if lastPanel ~= nil then
+		OnEvent(lastPanel, "ELVUI_COLOR_UPDATE")
+	end
 end
 E["valueColorUpdateFuncs"][ValueColorUpdate] = true
 
