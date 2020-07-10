@@ -1,7 +1,7 @@
 ## Interface: 80300
 ## Author: Crackpotx
 ## Title: |cff1784d1ElvUI|r Professions Datatext
-## Version: 2.1.5
+## Version: 2.1.6
 ## Notes: Simple professions datatext.
 ## RequiredDeps: ElvUI
 

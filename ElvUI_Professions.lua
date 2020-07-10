@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- ElvUI Professions Datatext By Crackpotx (US, Lightbringer)
+-- ElvUI Professions Datatext By Crackpot (US, Thrall)
 -------------------------------------------------------------------------------
 local E, _, V, P, G = unpack(ElvUI); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local DT = E:GetModule('DataTexts')
@@ -238,4 +238,5 @@ local function InjectOptions()
 end
 
 EP:RegisterPlugin(..., InjectOptions)
-DT:RegisterDatatext("Professions", {"PLAYER_ENTERING_WORLD", "CHAT_MSG_SKILL", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_DETAILS_UPDATE"}, OnEvent, nil, Click, OnEnter)
+DT:RegisterDatatext("Professions", nil, {"PLAYER_ENTERING_WORLD", "CHAT_MSG_SKILL", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_DETAILS_UPDATE"}, OnEvent, nil, Click, OnEnter, nil, L["Professions"])
+--DT:RegisterDatatext("Professions", {"PLAYER_ENTERING_WORLD", "CHAT_MSG_SKILL", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_DETAILS_UPDATE"}, OnEvent, nil, Click, OnEnter)

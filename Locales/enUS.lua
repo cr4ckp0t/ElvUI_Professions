@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- ElvUI_Professions By Crackpotx (US, Lightbringer)
+-- ElvUI_Professions By Crackpot (US, Thrall)
 -------------------------------------------------------------------------------
 local debug = false
 --@debug@

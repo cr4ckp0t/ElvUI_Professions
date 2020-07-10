@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- ElvUI Professions Datatext By Crackpotx (US, Lightbringer)
+-- ElvUI Professions Datatext By Crackpot (US, Thrall)
 --------------------------------------------------------------------------------
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
 local L = AceLocale:NewLocale("ElvUI_Professions", "koKR", false)
