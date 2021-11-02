@@ -1,7 +1,7 @@
-## Interface: 90005
+## Interface: 90105
 ## Author: Crackpotx
 ## Title: |cff1784d1ElvUI|r Professions Datatext
-## Version: 3.0.2
+## Version: 3.0.3
 ## Notes: Simple professions datatext.
 ## RequiredDeps: ElvUI
 
