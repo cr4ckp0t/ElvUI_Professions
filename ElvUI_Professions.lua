@@ -16,7 +16,6 @@ local CastSpellByName = _G["CastSpellByName"]
 local format = string.format
 local join = string.join
 
-local lastPanel
 local profValues = {}
 local displayString = ""
 local tooltipString = ""
@@ -33,7 +32,7 @@ local function OnEvent(self, event, ...)
 		
 		if prof1 ~= nil then
 			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(prof1)
-			self.text:SetFormattedText(displayString, name, rank, maxRank)
+			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
 		else
 			self.text:SetText(L["No Profession"])
 		end
@@ -42,7 +41,7 @@ local function OnEvent(self, event, ...)
 	
 		if prof2 ~= nil then
 			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(prof2)
-			self.text:SetFormattedText(displayString, name, rank, maxRank)
+			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
 		else
 			self.text:SetText(L["No Profession"])
 		end
@@ -51,7 +50,7 @@ local function OnEvent(self, event, ...)
 	
 		if archy ~= nil then
 			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(archy)
-			self.text:SetFormattedText(displayString, name, rank, maxRank)
+			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
 		else
 			self.text:SetText(L["No Profession"])
 		end
@@ -60,7 +59,7 @@ local function OnEvent(self, event, ...)
 	
 		if fishing ~= nil then
 			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(fishing)
-			self.text:SetFormattedText(displayString, name, rank, maxRank)
+			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
 		else
 			self.text:SetText(L["No Profession"])
 		end
@@ -69,7 +68,7 @@ local function OnEvent(self, event, ...)
 	
 		if cooking ~= nil then
 			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(cooking)
-			self.text:SetFormattedText(displayString, name, rank, maxRank)
+			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
 		else
 			self.text:SetText(L["No Profession"])
 		end
@@ -166,18 +165,16 @@ local function OnEnter(self)
 	DT.tooltip:Show()
 end
 
-local function ValueColorUpdate(hex, r, g, b)
+local function ValueColorUpdate(self, hex, r, g, b)
 	displayString = join("", "|cffffffff%s:|r ", hex, "%d|r/", hex, "%d|r")
 	tooltipString = join("" , hex, "%d|r|cffffffff/|r", hex, "%d|r")
 	
-	if lastPanel ~= nil then
-		OnEvent(lastPanel, "ELVUI_COLOR_UPDATE")
-	end
+	OnEvent(self)
 end
-E["valueColorUpdateFuncs"][ValueColorUpdate] = true
 
 P["profdt"] = {
 	["prof"] = "prof1",
+	["shortenLabels"] = false,
 	["hint"] = true,
 }
 
@@ -227,9 +224,15 @@ local function InjectOptions()
 					return profValues
 				end,
 			},
-			hint = {
+			shortLabels = {
 				type = "toggle",
 				order = 2,
+				name = L["Shorten Labels"],
+				desc = L["Shorten the profession labels in the datatext. For example |cffffff00Engineering|r becomes |cffffff00Eng|r."],
+			},
+			hint = {
+				type = "toggle",
+				order = 3,
 				name = L["Show Hint"],
 				desc = L["Show the hint in the tooltip."],
 			},
@@ -238,5 +241,4 @@ local function InjectOptions()
 end
 
 EP:RegisterPlugin(..., InjectOptions)
-DT:RegisterDatatext("Professions", nil, {"PLAYER_ENTERING_WORLD", "CHAT_MSG_SKILL", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_DETAILS_UPDATE"}, OnEvent, nil, Click, OnEnter, nil, L["Professions"])
---DT:RegisterDatatext("Professions", {"PLAYER_ENTERING_WORLD", "CHAT_MSG_SKILL", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_DETAILS_UPDATE"}, OnEvent, nil, Click, OnEnter)
+DT:RegisterDatatext("Professions", nil, {"PLAYER_ENTERING_WORLD", "CHAT_MSG_SKILL", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_DETAILS_UPDATE"}, OnEvent, nil, Click, OnEnter, nil, L["Professions"], nil, ValueColorUpdate)
