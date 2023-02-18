@@ -3,8 +3,8 @@
 -------------------------------------------------------------------------------
 local E, _, V, P, G = unpack(ElvUI); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local DT = E:GetModule('DataTexts')
-local L = LibStub("AceLocale-3.0"):GetLocale("ElvUI_Professions", false)
-local EP = LibStub("LibElvUIPlugin-1.0")
+local L = E.Libs.ACL:GetLocale("ElvUI_Professions", false)
+local EP = E.Libs.EP
 
 local unpack = _G["unpack"]
 local GetProfessionName = _G["GetProfessionName"]
