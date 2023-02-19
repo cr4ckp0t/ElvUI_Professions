@@ -1,3 +1,5 @@
 package-as: ElvUI_Professions
 
+enable-nolib-creation: no
+
 license-output: LICENSE.TXT
