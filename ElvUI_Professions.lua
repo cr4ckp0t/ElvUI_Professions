@@ -5,6 +5,7 @@ local E, _, V, P, G = unpack(ElvUI); --Inport: Engine, Locales, PrivateDB, Profi
 local DT = E:GetModule('DataTexts')
 local L = E.Libs.ACL:GetLocale("ElvUI_Professions", false)
 local EP = E.Libs.EP
+local ACH = E.Libs.ACH
 
 local GetProfessionInfo = _G.GetProfessionInfo
 local GetProfessions = _G.GetProfessions
@@ -120,68 +121,24 @@ local function SettingsUpdate(self, hex, r, g, b)
 	tooltipString = strjoin('' , hex, '%d|r|cffffffff/|r', hex, '%d|r')
 end
 
-P["profdt"] = {
-	["prof"] = "prof1",
-	["shortenLabels"] = false,
-	["hint"] = true,
+P.profdt = {
+	prof = "prof1",
+	shortenLabels = false,
+	hint = true,
 }
 
 local function InjectOptions()
 	if not E.Options.args.Crackpotx then
-		E.Options.args.Crackpotx = {
-			type = "group",
-			order = -2,
-			name = L["Plugins by |cff0070deCrackpotx|r"],
-			args = {
-				thanks = {
-					type = "description",
-					order = 1,
-					name = L["Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."],
-				},
-			},
-		}
-	elseif not E.Options.args.Crackpotx.args.thanks then
-		E.Options.args.Crackpotx.args.thanks = {
-			type = "description",
-			order = 1,
-			name = L["Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."],
-		}
+		E.Options.args.Crackpotx = ACH:Group(L["Plugins by |cff0070deCrackpotx|r"])
+	end
+	if not E.Options.args.Crackpotx.args.thanks then
+		E.Options.args.Crackpotx.args.thanks = ACH:Description(L["Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."], 1)
 	end
 
-	E.Options.args.Crackpotx.args.profdt = {
-		type = "group",
-		name = L["Professions Datatext"],
-		get = function(info) return E.db.profdt[info[#info]] end,
-		set = function(info, value) E.db.profdt[info[#info]] = value; DT:ForceUpdate_DataText('Professions') end,
-		args = {
-			prof = {
-				type = "select",
-				order = 1,
-				name = L["Professions"],
-				desc = L["Select which profession to display."],
-				values = function()
-					local profValues = {}
-					for id, data in pairs(professions) do
-						profValues[id] = data.name
-					end
-
-					return profValues
-				end,
-			},
-			shortLabels = {
-				type = "toggle",
-				order = 2,
-				name = L["Shorten Labels"],
-				desc = L["Shorten the profession labels in the datatext. For example |cffffff00Engineering|r becomes |cffffff00Eng|r."],
-			},
-			hint = {
-				type = "toggle",
-				order = 3,
-				name = L["Show Hint"],
-				desc = L["Show the hint in the tooltip."],
-			},
-		},
-	}
+	E.Options.args.Crackpotx.args.profdt = ACH:Group(L["Professions Datatext"], nil, nil, nil, function(info) return E.db.profdt[info[#info]] end, function(info, value) E.db.profdt[info[#info]] = value; DT:ForceUpdate_DataText('Professions') end)
+	E.Options.args.Crackpotx.args.profdt.args.prof = ACH:Select(L["Professions"], L["Select which profession to display."], 1, function() local profValues = {} for id, data in pairs(professions) do profValues[id] = data.name end return profValues end)
+	E.Options.args.Crackpotx.args.profdt.args.shortLabels = ACH:Toggle(L["Shorten Labels"], L["Shorten the profession labels in the datatext. For example |cffffff00Engineering|r becomes |cffffff00Eng|r."], 3)
+	E.Options.args.Crackpotx.args.profdt.args.hint = ACH:Toggle(L["Show Hint"], L["Show the hint in the tooltip."], 3)
 end
 
 EP:RegisterPlugin(..., InjectOptions)
