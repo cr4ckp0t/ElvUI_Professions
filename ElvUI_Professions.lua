@@ -53,7 +53,7 @@ local function OnEvent(self)
 		order = order + 1
 	end
 
-	if prof1 then
+	if prof2 then
 		local name, texture, rank, maxRank = GetProfessionInfo(prof2)
 		professions['prof2'] = { order = order + 1, name = name, texture = format(textureString, texture), rank = rank, maxRank = maxRank }
 		order = order + 1
@@ -79,7 +79,11 @@ local function OnEvent(self)
 	local data = professions[E.db.profdt.prof]
 
 	if data then
-		self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and strsub(data.name, 1, 4) or data.name, data.rank, data.maxRank)
+		if E.db.profdt.showSkill then
+			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and strsub(data.name, 1, 4) or data.name, data.rank, data.maxRank)
+		else 
+			self.text:SetFormattedText(displayNoSkill, E.db.profdt.shortLabels == true and strsub(data.name, 1, 4) or data.name)
+		end
 	else
 		self.text:SetText(L["No Profession"])
 	end
@@ -94,7 +98,7 @@ local function OnClick(_, button)
 	end
 
 	if data and data.name then
-		CastSpellByName(data.name == L["Mining"] and L["Smelting"] or data.name)
+		CastSpellByName(data.name == L["Mining"] and L["Smelting"] or data.name == L["Herbalism"] and L["Herbalism Journal"] or data.name)
 	end
 end
 
@@ -118,12 +122,14 @@ end
 
 local function SettingsUpdate(self, hex, r, g, b)
 	displayString = strjoin('', '|cffffffff%s:|r ', hex, '%d|r/', hex, '%d|r')
+	displayNoSkill = strjoin('', hex, '%s|r')
 	tooltipString = strjoin('' , hex, '%d|r|cffffffff/|r', hex, '%d|r')
 end
 
 P.profdt = {
 	prof = "prof1",
 	shortenLabels = false,
+	showSkill = true,
 	hint = true,
 }
 
@@ -136,9 +142,10 @@ local function InjectOptions()
 	end
 
 	E.Options.args.Crackpotx.args.profdt = ACH:Group(L["Professions Datatext"], nil, nil, nil, function(info) return E.db.profdt[info[#info]] end, function(info, value) E.db.profdt[info[#info]] = value; DT:ForceUpdate_DataText('Professions') end)
-	E.Options.args.Crackpotx.args.profdt.args.prof = ACH:Select(L["Professions"], L["Select which profession to display."], 1, function() local profValues = {} for id, data in pairs(professions) do profValues[id] = data.name end return profValues end)
-	E.Options.args.Crackpotx.args.profdt.args.shortLabels = ACH:Toggle(L["Shorten Labels"], L["Shorten the profession labels in the datatext. For example |cffffff00Engineering|r becomes |cffffff00Eng|r."], 3)
-	E.Options.args.Crackpotx.args.profdt.args.hint = ACH:Toggle(L["Show Hint"], L["Show the hint in the tooltip."], 3)
+	E.Options.args.Crackpotx.args.profdt.args.prof = ACH:Select(L["Professions"], L["Select which profession to display."], 1, function() local profValues = {}; for id, data in pairs(professions) do profValues[id] = data.name end return profValues end)
+	E.Options.args.Crackpotx.args.profdt.args.shortLabels = ACH:Toggle(L["Shorten Labels"], L["Shorten the profession labels in the datatext. For example |cffffff00Engineering|r becomes |cffffff00Eng|r."], 2)
+	E.Options.args.Crackpotx.args.profdt.args.showSkill = ACH:Toggle(L["Include Skill Level"], L["Include the skill level in the datatext text."], 3)
+	E.Options.args.Crackpotx.args.profdt.args.hint = ACH:Toggle(L["Show Hint"], L["Show the hint in the tooltip."], 4)
 end
 
 EP:RegisterPlugin(..., InjectOptions)
