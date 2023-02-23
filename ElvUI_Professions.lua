@@ -5,240 +5,141 @@ local E, _, V, P, G = unpack(ElvUI); --Inport: Engine, Locales, PrivateDB, Profi
 local DT = E:GetModule('DataTexts')
 local L = E.Libs.ACL:GetLocale("ElvUI_Professions", false)
 local EP = E.Libs.EP
+local ACH = E.Libs.ACH
 
-local unpack = _G["unpack"]
-local GetProfessionName = _G["GetProfessionName"]
-local GetProfessionInfo = _G["GetProfessionInfo"]
-local GetProfessions = _G["GetProfessions"]
-local IsShiftKeyDown = _G["IsShiftKeyDown"]
-local CastSpellByName = _G["CastSpellByName"]
+local GetProfessionInfo = _G.GetProfessionInfo
+local GetProfessions = _G.GetProfessions
+local IsShiftKeyDown = _G.IsShiftKeyDown
+local CastSpellByName = _G.CastSpellByName
 
-local format = string.format
-local join = string.join
+local format = format
+local tinsert = tinsert
+local sort = sort
+local wipe = wipe
+local strjoin = strjoin
+local strsub = strsub
 
-local profValues = {}
-local displayString = ""
-local tooltipString = ""
+local professions = {}
+local displayString = ''
+local tooltipString = ''
+local textureString = '|T%s:16:16:0:0:64:64:4:60:4:60|t'
 
-local function GetProfessionName(index)
-	local name, _, _, _, _, _, _, _ = GetProfessionInfo(index)
-	return name
+local function GetProfessionName(prof)
+	return professions[prof] and professions[prof].name or ''
 end
 
-local function OnEvent(self, event, ...)
+local function sortedPairs(t, f)
+	local a = {}
+	for n in pairs(t) do tinsert(a, n) end
+	sort(a, f)
+	local i = 0
+	local iter = function()
+		i = i + 1
+		if a[i] == nil then return nil
+		else return a[i], t[a[i]]
+		end
+	end
+	return iter
+end
+
+local function OnEvent(self)
+	wipe(professions)
 	local prof1, prof2, archy, fishing, cooking = GetProfessions()
-	lastPanel = self
-	if E.db.profdt.prof == "prof1" then
-		
-		if prof1 ~= nil then
-			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(prof1)
-			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
-		else
-			self.text:SetText(L["No Profession"])
-		end
-	
-	elseif E.db.profdt.prof == "prof2" then
-	
-		if prof2 ~= nil then
-			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(prof2)
-			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
-		else
-			self.text:SetText(L["No Profession"])
-		end
-	
-	elseif E.db.profdt.prof == "archy" then
-	
-		if archy ~= nil then
-			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(archy)
-			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
-		else
-			self.text:SetText(L["No Profession"])
-		end
-	
-	elseif E.db.profdt.prof == "fishing" then
-	
-		if fishing ~= nil then
-			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(fishing)
-			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
-		else
-			self.text:SetText(L["No Profession"])
-		end
-	
-	elseif E.db.profdt.prof == "cooking" then
-	
-		if cooking ~= nil then
-			local name, _, rank, maxRank, _, _, _, _ = GetProfessionInfo(cooking)
-			self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and name:sub(1, 4) or name, rank, maxRank)
-		else
-			self.text:SetText(L["No Profession"])
-		end
-	
+	local order = 1
+
+	if prof1 then
+		local name, texture, rank, maxRank = GetProfessionInfo(prof1)
+		professions['prof1'] = { order = order + 1, name = name, texture = format(textureString, texture), rank = rank, maxRank = maxRank }
+		order = order + 1
+	end
+
+	if prof1 then
+		local name, texture, rank, maxRank = GetProfessionInfo(prof2)
+		professions['prof2'] = { order = order + 1, name = name, texture = format(textureString, texture), rank = rank, maxRank = maxRank }
+		order = order + 1
+	end
+
+	if archy then
+		local name, texture, rank, maxRank = GetProfessionInfo(archy)
+		professions['archy'] = { order = order + 1, name = name, texture = format(textureString, texture), rank = rank, maxRank = maxRank }
+		order = order + 1
+	end
+
+	if fishing then
+		local name, texture, rank, maxRank = GetProfessionInfo(fishing)
+		professions['fishing'] = { order = order + 1, name = name, texture = format(textureString, texture), rank = rank, maxRank = maxRank }
+		order = order + 1
+	end
+
+	if cooking then
+		local name, texture, rank, maxRank = GetProfessionInfo(cooking)
+		professions['cooking'] = { order = order + 1, name = name, texture = format(textureString, texture), rank = rank, maxRank = maxRank }
+	end
+
+	local data = professions[E.db.profdt.prof]
+
+	if data then
+		self.text:SetFormattedText(displayString, E.db.profdt.shortLabels == true and strsub(data.name, 1, 4) or data.name, data.rank, data.maxRank)
+	else
+		self.text:SetText(L["No Profession"])
 	end
 end
 
-local function Click(self, button)
-	local prof1, prof2, archy, _, cooking = GetProfessions()
+local function OnClick(_, button)
+	local data
 	if button == "LeftButton" then
-		if IsShiftKeyDown() and archy == nil then return
-		elseif not IsShiftKeyDown() and prof1 == nil then return end
-		local name, _, _, _, _, _, _, _ = GetProfessionInfo(IsShiftKeyDown() and archy or prof1)
-		CastSpellByName(name == L["Mining"] and L["Smelting"] or name)
-	elseif button == "RightButton" then
-		if IsShiftKeyDown() and cooking == nil then return
-		elseif not IsShiftKeyDown() and prof2 == nil then return end
-		local name, _, _, _, _, _, _, _ = GetProfessionInfo(IsShiftKeyDown() and cooking or prof2)
-		CastSpellByName(name == L["Mining"] and L["Smelting"] or name)
+		data = IsShiftKeyDown() and professions['archy'] or professions['prof1']
+	else
+		data = IsShiftKeyDown() and professions['cooking'] or professions['prof2']
+	end
+
+	if data and data.name then
+		CastSpellByName(data.name == L["Mining"] and L["Smelting"] or data.name)
 	end
 end
 
-local function OnEnter(self)
-	DT:SetupTooltip(self)
-	
-	local prof1, prof2, archy, fishing, cooking = GetProfessions()
-	local professions = {}
-	
-	if prof1 ~= nil then
-		local name, texture, rank, maxRank, _, _, _, _ = GetProfessionInfo(prof1)
-		professions[#professions + 1] = {
-			name	= name,
-			texture	= ("|T%s:12:12:1:0|t"):format(texture),
-			rank	= rank,
-			maxRank	= maxRank
-		}
+local function OnEnter()
+	DT.tooltip:ClearLines()
+
+	for _, data in sortedPairs(professions, function(a, b) return professions[a].order < professions[b].order end) do
+		DT.tooltip:AddDoubleLine(strjoin('', data.texture, ' ', data.name), format(tooltipString, data.rank, data.maxRank), 1, 1, 1, 1, 1, 1)
 	end
-	
-	if prof2 ~= nil then
-		local name, texture, rank, maxRank, _, _, _, _ = GetProfessionInfo(prof2)
-		professions[#professions + 1] = {
-			name	= name,
-			texture	= ("|T%s:12:12:1:0|t"):format(texture),
-			rank	= rank,
-			maxRank	= maxRank
-		}
-	end
-	
-	if archy ~= nil then
-		local name, texture, rank, maxRank, _, _, _, _ = GetProfessionInfo(archy)
-		professions[#professions + 1] = {
-			name	= name,
-			texture	= ("|T%s:12:12:1:0|t"):format(texture),
-			rank	= rank,
-			maxRank	= maxRank
-		}
-	end
-	
-	if fishing ~= nil then
-		local name, texture, rank, maxRank, _, _, _, _ = GetProfessionInfo(fishing)
-		professions[#professions + 1] = {
-			name	= name,
-			texture	= ("|T%s:12:12:1:0|t"):format(texture),
-			rank	= rank,
-			maxRank	= maxRank
-		}
-	end
-	
-	if cooking ~= nil then
-		local name, texture, rank, maxRank, _, _, _, _ = GetProfessionInfo(cooking)
-		professions[#professions + 1] = {
-			name	= name,
-			texture	= ("|T%s:12:12:1:0|t"):format(texture),
-			rank	= rank,
-			maxRank	= maxRank
-		}
-	end
-	
-	if #professions == 0 then return end	
-	sort(professions, function(a, b) return a["name"] < b["name"] end)
-	
-	for i = 1, #professions do
-		DT.tooltip:AddDoubleLine(join("", professions[i].texture, "  ", professions[i].name), tooltipString:format(professions[i].rank, professions[i].maxRank), 1, 1, 1, 1, 1, 1)
-	end
-	
+
 	if E.db.profdt.hint then
-		DT.tooltip:AddLine(" ")
-		DT.tooltip:AddDoubleLine(L["Left Click:"], L["Open "] .. GetProfessionName(prof1), 1, 1, 1, 1, 1, 0)
-		DT.tooltip:AddDoubleLine(L["Right Click:"], L["Open "] .. GetProfessionName(prof2), 1, 1, 1, 1, 1, 0)
+		DT.tooltip:AddLine(' ')
+		DT.tooltip:AddDoubleLine(L["Left Click:"], L["Open "] .. GetProfessionName('prof1'), 1, 1, 1, 1, 1, 0)
+		DT.tooltip:AddDoubleLine(L["Right Click:"], L["Open "] .. GetProfessionName('prof2'), 1, 1, 1, 1, 1, 0)
 		DT.tooltip:AddDoubleLine(L["Shift + Left Click:"], L["Open Archaeology"], 1, 1, 1, 1, 1, 0)
 		DT.tooltip:AddDoubleLine(L["Shift + Right Click:"], L["Open Cooking"], 1, 1, 1, 1, 1, 0)
 	end
-	
+
 	DT.tooltip:Show()
 end
 
-local function ValueColorUpdate(self, hex, r, g, b)
-	displayString = join("", "|cffffffff%s:|r ", hex, "%d|r/", hex, "%d|r")
-	tooltipString = join("" , hex, "%d|r|cffffffff/|r", hex, "%d|r")
-	
-	OnEvent(self)
+local function SettingsUpdate(self, hex, r, g, b)
+	displayString = strjoin('', '|cffffffff%s:|r ', hex, '%d|r/', hex, '%d|r')
+	tooltipString = strjoin('' , hex, '%d|r|cffffffff/|r', hex, '%d|r')
 end
 
-P["profdt"] = {
-	["prof"] = "prof1",
-	["shortenLabels"] = false,
-	["hint"] = true,
+P.profdt = {
+	prof = "prof1",
+	shortenLabels = false,
+	hint = true,
 }
 
 local function InjectOptions()
 	if not E.Options.args.Crackpotx then
-		E.Options.args.Crackpotx = {
-			type = "group",
-			order = -2,
-			name = L["Plugins by |cff0070deCrackpotx|r"],
-			args = {
-				thanks = {
-					type = "description",
-					order = 1,
-					name = L["Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."],
-				},
-			},
-		}
-	elseif not E.Options.args.Crackpotx.args.thanks then
-		E.Options.args.Crackpotx.args.thanks = {
-			type = "description",
-			order = 1,
-			name = L["Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."],
-		}
+		E.Options.args.Crackpotx = ACH:Group(L["Plugins by |cff0070deCrackpotx|r"])
+	end
+	if not E.Options.args.Crackpotx.args.thanks then
+		E.Options.args.Crackpotx.args.thanks = ACH:Description(L["Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."], 1)
 	end
 
-	E.Options.args.Crackpotx.args.profdt = {
-		type = "group",
-		name = L["Professions Datatext"],
-		get = function(info) return E.db.profdt[info[#info]] end,
-		set = function(info, value) E.db.profdt[info[#info]] = value; DT:LoadDataTexts() end,
-		args = {
-			prof = {
-				type = "select",
-				order = 1,
-				name = L["Professions"],
-				desc = L["Select which profession to display."],
-				
-				values = function()
-					local prof1, prof2, archy, fishing, cooking = GetProfessions()
-					local profValues = {}
-					if prof1 ~= nil then profValues['prof1'] = GetProfessionName(prof1) end
-					if prof2 ~= nil then profValues['prof2'] = GetProfessionName(prof2) end
-					if archy ~= nil then profValues['archy'] = GetProfessionName(archy) end
-					if fishing ~= nil then profValues['fishing'] = GetProfessionName(fishing) end
-					if cooking ~= nil then profValues['cooking'] = GetProfessionName(cooking) end
-					sort(profValues)
-					return profValues
-				end,
-			},
-			shortLabels = {
-				type = "toggle",
-				order = 2,
-				name = L["Shorten Labels"],
-				desc = L["Shorten the profession labels in the datatext. For example |cffffff00Engineering|r becomes |cffffff00Eng|r."],
-			},
-			hint = {
-				type = "toggle",
-				order = 3,
-				name = L["Show Hint"],
-				desc = L["Show the hint in the tooltip."],
-			},
-		},
-	}
+	E.Options.args.Crackpotx.args.profdt = ACH:Group(L["Professions Datatext"], nil, nil, nil, function(info) return E.db.profdt[info[#info]] end, function(info, value) E.db.profdt[info[#info]] = value; DT:ForceUpdate_DataText('Professions') end)
+	E.Options.args.Crackpotx.args.profdt.args.prof = ACH:Select(L["Professions"], L["Select which profession to display."], 1, function() local profValues = {} for id, data in pairs(professions) do profValues[id] = data.name end return profValues end)
+	E.Options.args.Crackpotx.args.profdt.args.shortLabels = ACH:Toggle(L["Shorten Labels"], L["Shorten the profession labels in the datatext. For example |cffffff00Engineering|r becomes |cffffff00Eng|r."], 3)
+	E.Options.args.Crackpotx.args.profdt.args.hint = ACH:Toggle(L["Show Hint"], L["Show the hint in the tooltip."], 3)
 end
 
 EP:RegisterPlugin(..., InjectOptions)
-DT:RegisterDatatext("Professions", nil, {"PLAYER_ENTERING_WORLD", "CHAT_MSG_SKILL", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_DETAILS_UPDATE"}, OnEvent, nil, Click, OnEnter, nil, L["Professions"], nil, ValueColorUpdate)
+DT:RegisterDatatext('Professions', L["Plugins by |cff0070deCrackpotx|r"], { 'CHAT_MSG_SKILL', 'TRADE_SKILL_LIST_UPDATE', 'TRADE_SKILL_DETAILS_UPDATE' }, OnEvent, nil, OnClick, OnEnter, nil, L["Professions"], nil, SettingsUpdate)
