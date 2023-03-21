@@ -21,6 +21,7 @@ local strsub = strsub
 
 local professions = {}
 local displayString = ''
+local displayNoSkill = ''
 local tooltipString = ''
 local textureString = '|T%s:16:16:0:0:64:64:4:60:4:60|t'
 
