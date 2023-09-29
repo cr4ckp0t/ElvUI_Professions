@@ -1,7 +1,8 @@
 ## Interface: 100107
 ## Author: Crackpot
-## Title: |cff1784d1ElvUI|r Professions Datatext
-## Version: 3.2.5
+## Title: ElvUI Professions Datatext
+## IconTexture: Interface\AddOns\ElvUI_Professions\Media\crackpot
+## Version: 3.2.6
 ## Notes: Simple professions datatext.
 ## RequiredDeps: ElvUI
 
@@ -18,8 +19,4 @@ Locales\zhCN.lua
 Locales\zhTW.lua
 
 ElvUI_Professions.lua
-
-
-
-
 
